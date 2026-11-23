@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A2E30">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="سَمَاعْ — استمع إلى إذاعة القرآن الكريم من القاهرة، بثّ حيّ على مدار الساعة.">
+<title>سَمَاعْ — إذاعة القرآن الكريم من القاهرة</title>
+<link rel="icon" type="image/png" href="icon.png">
+<style>
+  @font-face {
+    font-family: 'SamaaThuluth';
+    src: url('fonts/thuluth.ttf') format('truetype');
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'SamaaAmiri';
+    src: url('fonts/amiri.ttf') format('truetype');
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'SamaaAmiri';
+    src: url('fonts/amiri_bold.ttf') format('truetype');
+    font-weight: bold;
+    font-display: swap;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { color-scheme: dark; }
+  html, body { height: 100%; }
+  html {
+    background-color: #061E21;
+    background-image: linear-gradient(180deg, #10403F 0%, #0A2E30 50%, #061E21 100%);
+  }
+  body {
+    background: linear-gradient(180deg, #10403F 0%, #0A2E30 50%, #061E21 100%);
+    color: #F2E9CE;
+    font-family: 'SamaaAmiri', serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+  .pattern {
+    position: fixed; inset: 0;
+    background-image: url('pattern_tile.png');
+    background-repeat: repeat;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .screen {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-width: 480px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 56px 32px 40px;
+  }
+  .star { width: 22px; height: 22px; flex: none; }
+  .wordmark {
+    font-family: 'SamaaThuluth', 'SamaaAmiri', serif;
+    font-size: 92px;
+    line-height: 1.35;
+    color: #F2E9CE;
+    margin-top: 2px;
+  }
+  .subtitle {
+    font-size: 19px;
+    color: #CDBF9C;
+    margin-top: 2px;
+    text-align: center;
+  }
+  .date-line {
+    font-size: 15px;
+    color: #CDBF9C;
+    margin-top: 20px;
+    text-align: center;
+  }
+  .clock-line {
+    font-size: 15px;
+    color: #B7AC8E;
+    margin-top: 4px;
+    text-align: center;
+  }
+  .middle {
+    position: relative;
+    width: min(320px, 84vw);
+    flex: 1 1 auto;
+    min-height: 340px;
+    margin-top: 10px;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+  }
+  .arch {
+    position: absolute;
+    inset: 0 0 40px 0;
+    opacity: 0.5;
+    width: 100%;
+    height: calc(100% - 40px);
+  }
+  .play-btn {
+    position: absolute;
+    top: calc(50% - 20px);
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: radial-gradient(circle at center, #EBCD7F 0%, #C8A24A 55%, #A9853B 100%);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: transform 0.12s ease;
+  }
+  .play-btn:active { transform: translate(-50%, -50%) scale(0.96); }
+  .play-btn svg { width: 54px; height: 54px; }
+  .volume {
+    position: absolute;
+    top: calc(50% + 73px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    direction: rtl;
+    z-index: 2;
+    width: min(200px, 58vw);
+  }
+  .vol-icon { width: 18px; height: 18px; flex: none; opacity: 0.9; }
+  #volSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to left, #D8B25A 100%, rgba(216,178,90,0.22) 100%);
+    outline: none;
+    cursor: pointer;
+  }
+  #volSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: none;
+    background: radial-gradient(circle at center, #EBCD7F 0%, #C8A24A 70%);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  #volSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: none;
+    background: radial-gradient(circle at center, #EBCD7F 0%, #C8A24A 70%);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  #volSlider::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(216,178,90,0.22); }
+  #volSlider::-moz-range-progress { height: 4px; border-radius: 2px; background: #D8B25A; }
+  .status {
+    font-size: 16px;
+    color: #B7AC8E;
+    margin-top: 22px;
+    text-align: center;
+    min-height: 1.5em;
+  }
+  .footer {
+    font-size: 13px;
+    color: #8FA39B;
+    margin-top: 16px;
+    text-align: center;
+  }
+  .copyright {
+    font-size: 12px;
+    color: #8FA39B;
+    margin-top: 6px;
+    text-align: center;
+  }
+  .bottom-row {
+    position: fixed;
+    bottom: 6px;
+    background: transparent;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 4;
+    white-space: nowrap;
+  }
+  .bottom-row a.contact,
+  .bottom-row button.privacy-link {
+    font-size: 12px;
+    font-family: 'SamaaAmiri', serif;
+    color: #B7AC8E;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 2px 0;
+    cursor: pointer;
+  }
+  .bottom-row a.contact:hover,
+  .bottom-row button.privacy-link:hover { text-decoration: underline; }
+  .bottom-row .sep { color: #8FA39B; font-size: 12px; }
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    padding: 24px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: #424242;
+    border-radius: 8px;
+    max-width: 420px;
+    width: 100%;
+    max-height: 80dvh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  }
+  .modal h2 {
+    font-size: 20px;
+    color: #F5EBD0;
+    padding: 20px 24px 8px;
+    font-weight: normal;
+  }
+  .modal .body {
+    font-size: 16px;
+    color: #F5EBD0;
+    line-height: 1.9;
+    padding: 8px 24px 16px;
+    overflow-y: auto;
+  }
+  .modal .actions {
+    display: flex;
+    justify-content: flex-start;
+    padding: 8px 16px 12px;
+  }
+  .modal .actions button {
+    background: none;
+    border: none;
+    color: #C8A24A;
+    font-family: 'SamaaAmiri', serif;
+    font-size: 16px;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="pattern"></div>
+
+<main class="screen">
+  <svg class="star" viewBox="0 0 26 26" aria-hidden="true">
+    <path d="M7,7 h12 v12 h-12 Z" stroke="#C8A24A" stroke-width="1.4" fill="none"/>
+    <path d="M13,4.5 L21.5,13 L13,21.5 L4.5,13 Z" stroke="#C8A24A" stroke-width="1.4" fill="none"/>
+  </svg>
+
+  <h1 class="wordmark">سَمَاعْ</h1>
+  <p class="subtitle">إذاعة القرآن الكريم من القاهرة</p>
+  <p class="date-line" id="dateLine"></p>
+  <p class="clock-line" id="clockLine"></p>
+
+  <div class="middle">
+    <svg class="arch" viewBox="0 0 360 360" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M40,330 L40,200 C40,120 120,105 180,30 C240,105 320,120 320,200 L320,330"
+            stroke="#D8B25A" stroke-width="2" fill="none" vector-effect="non-scaling-stroke"/>
+      <path d="M62,330 L62,205 C62,138 132,124 180,58 C228,124 298,138 298,205 L298,330"
+            stroke="#D8B25A" stroke-width="1" stroke-opacity="0.5" fill="none" vector-effect="non-scaling-stroke"/>
+    </svg>
+
+    <button class="play-btn" id="playBtn" aria-label="تشغيل البث المباشر">
+      <svg viewBox="0 0 96 96" id="playIcon">
+        <path id="playGlyph" d="M30,20 L78,48 L30,76 Z" fill="#0A2E30"/>
+      </svg>
+    </button>
+
+    <div class="volume">
+      <svg class="vol-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#CDBF9C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5 6.5 9H3v6h3.5L11 19z" fill="#CDBF9C" stroke="none"/>
+        <path d="M14.5 9.5a4 4 0 0 1 0 5"/>
+        <path d="M17 7a7.5 7.5 0 0 1 0 10"/>
+      </svg>
+      <input type="range" id="volSlider" min="0" max="100" value="100" aria-label="مستوى الصوت">
+    </div>
+  </div>
+
+  <p class="status" id="statusLine">بثّ حيّ على مدار الساعة</p>
+  <p class="footer">يعمل في الخلفية ومع قفل الشاشة</p>
+  <p class="copyright">© 2026 SIS، جميع الحقوق محفوظة</p>
+</main>
+
+<div class="bottom-row">
+  <a class="contact" href="mailto:sis.support.eg@gmail.com?subject=%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%B3%D9%85%D8%A7%D8%B9">للتواصل والدعم</a>
+  <span class="sep" aria-hidden="true">&mdash;</span>
+  <button class="privacy-link" id="privacyBtn">الخصوصية</button>
+</div>
+
+<div class="modal-backdrop" id="privacyModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
+    <h2 id="privacyTitle">الخصوصية وإحصائيات الاستماع</h2>
+    <div class="body">
+      <p>هذه الصفحة تشغّل بث إذاعة القرآن الكريم من القاهرة مباشرةً في متصفحك، ولا تجمع ولا ترسل أي بيانات عنك. تستضيف الصفحةَ خدمة Cloudflare، التي تعالج عنوان الشبكة وبيانات الاتصال اللازمة لتقديم الخدمة وفق سياستها.</p>
+      <p style="margin-top:12px">تطبيق سماع على أندرويد (نسخة تجريبية) يوفّر إحصائيات استماع اختيارية: لو وافقتَ داخل التطبيق، يرسل سماع معرّف جلسة عشوائيًا مؤقتًا ونبضات أثناء تشغيل البث لتقدير عدد الأجهزة المستمعة الآن. لا يُرسَل اسمك أو رقمك أو موقعك الدقيق أو الصوت، ولا يُنشأ سجل استماع شخصي. تُحذف بيانات الجلسة من قاعدة العدّاد النشطة خلال ٢٤ ساعة، ويمكنك الرفض أو الإيقاف في أي وقت دون التأثير على الاستماع. الأعداد تقريبية.</p>
+    </div>
+    <div class="actions">
+      <button id="privacyClose">حسنًا</button>
+    </div>
+  </div>
+</div>
+
+<audio id="radio" preload="none" src="https://stream.radiojar.com/8s5u5tpdtwzuv"></audio>
+
+<script>
+(function () {
+  'use strict';
+
+  var STREAM_URL = 'https://stream.radiojar.com/8s5u5tpdtwzuv';
+  var WEEKDAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  var MONTHS_GREG = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  var AR_DIGITS = { '0': '٠', '1': '١', '2': '٢', '3': '٣', '4': '٤', '5': '٥', '6': '٦', '7': '٧', '8': '٨', '9': '٩' };
+
+  function arDigits(s) {
+    return String(s).replace(/[0-9]/g, function (d) { return AR_DIGITS[d]; });
+  }
+
+  function cairoParts() {
+    var fmt = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Africa/Cairo',
+      weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric',
+      hour: 'numeric', minute: '2-digit', hour12: true
+    });
+    var parts = {};
+    fmt.formatToParts(new Date()).forEach(function (p) { parts[p.type] = p.value; });
+    return parts;
+  }
+
+  var hijriFmt = null;
+  try {
+    hijriFmt = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+      timeZone: 'Africa/Cairo', day: 'numeric', month: 'long', year: 'numeric', numberingSystem: 'arab'
+    });
+    hijriFmt.format(new Date());
+  } catch (e) {
+    hijriFmt = null;
+  }
+
+  function hijriLine() {
+    if (!hijriFmt) return 'التقويم الهجري بانتظار الاتصال…';
+    var parts = { day: '', month: '', year: '' };
+    hijriFmt.formatToParts(new Date()).forEach(function (p) {
+      if (p.type === 'day' || p.type === 'month' || p.type === 'year') parts[p.type] = p.value;
+    });
+    if (!parts.day || !parts.month || !parts.year) return 'التقويم الهجري بانتظار الاتصال…';
+    return parts.day + ' ' + parts.month + ' ' + parts.year + ' هـ';
+  }
+
+  var dateLine = document.getElementById('dateLine');
+  var clockLine = document.getElementById('clockLine');
+
+  function updateClock() {
+    var p = cairoParts();
+    var wd = WEEKDAYS[['sunday','monday','tuesday','wednesday','thursday','friday','saturday'].indexOf(p.weekday.toLowerCase())] || p.weekday;
+    var greg = arDigits(parseInt(p.day, 10)) + ' ' + MONTHS_GREG[parseInt(p.month, 10) - 1] + ' ' + arDigits(p.year) + ' م';
+    dateLine.textContent = wd + '، ' + greg + '  •  ' + hijriLine();
+    var hour12 = parseInt(p.hour, 10) % 12; if (hour12 === 0) hour12 = 12;
+    var ampm = (p.dayPeriod && p.dayPeriod.toLowerCase().indexOf('p') === 0) ? 'م' : 'ص';
+    clockLine.textContent = 'القاهرة، مصر  —  ' + arDigits(hour12) + ':' + arDigits(p.minute) + ' ' + ampm;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ---- Live stream ----
+  var audio = document.getElementById('radio');
+  var playBtn = document.getElementById('playBtn');
+  var playGlyph = document.getElementById('playGlyph');
+  var statusLine = document.getElementById('statusLine');
+  var GLYPH_PLAY = 'M30,20 L78,48 L30,76 Z';
+  var GLYPH_PAUSE = 'M28,22 h12 v52 h-12 Z M56,22 h12 v52 h-12 Z';
+  var wantPlay = false;
+
+  function setState(text, playing) {
+    statusLine.textContent = text;
+    playGlyph.setAttribute('d', playing ? GLYPH_PAUSE : GLYPH_PLAY);
+    playBtn.setAttribute('aria-label', playing ? 'إيقاف البث' : 'تشغيل البث المباشر');
+  }
+
+  var volSlider = document.getElementById('volSlider');
+  function paintVol() {
+    var p = volSlider.value;
+    volSlider.style.background = 'linear-gradient(to left, #D8B25A ' + p + '%, rgba(216,178,90,0.22) ' + p + '%)';
+  }
+  volSlider.addEventListener('input', function () {
+    audio.volume = volSlider.value / 100;
+    paintVol();
+  });
+  paintVol();
+
+  playBtn.addEventListener('click', function () {
+    if (wantPlay) {
+      wantPlay = false;
+      audio.pause();
+      setState('بثّ حيّ على مدار الساعة', false);
+    } else {
+      wantPlay = true;
+      setState('جارٍ الاتصال بالبث…', false);
+      var pr = audio.play();
+      if (pr && pr.catch) pr.catch(function () {
+        wantPlay = false;
+        setState('تعذّر الاتصال بالبث — تحقّق من الإنترنت وحاول مجددًا', false);
+      });
+    }
+  });
+  audio.addEventListener('playing', function () { if (wantPlay) setState('يتم التشغيل الآن — بث مباشر', true); });
+  audio.addEventListener('waiting', function () { if (wantPlay) setState('جارٍ الاتصال بالبث…', false); });
+  audio.addEventListener('error', function () {
+    if (wantPlay) { wantPlay = false; setState('تعذّر الاتصال بالبث — تحقّق من الإنترنت وحاول مجددًا', false); }
+  });
+
+  // ---- Privacy modal ----
+  var privacyModal = document.getElementById('privacyModal');
+  document.getElementById('privacyBtn').addEventListener('click', function () { privacyModal.classList.add('open'); });
+  document.getElementById('privacyClose').addEventListener('click', function () { privacyModal.classList.remove('open'); });
+  privacyModal.addEventListener('click', function (e) { if (e.target === privacyModal) privacyModal.classList.remove('open'); });
+})();
+</script>
+</body>
+</html>
